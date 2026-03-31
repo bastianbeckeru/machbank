@@ -8,7 +8,7 @@ import { useWebHaptics } from "web-haptics/react";
 import { MobileFrame } from "@/components/MobileFrame";
 import { useSystemInfo } from "@/hooks/use-system-info";
 
-const CORRECT_PIN = "3214";
+const CORRECT_PIN = "1234";
 const PIN_LENGTH = 4;
 const MACH_LETTERS = ["M", "A", "C", "H"] as const;
 const DIAL_KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;

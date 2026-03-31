@@ -65,16 +65,16 @@ export default function AuthPage() {
 							/>
 						))}
 						<KeyboardKey
+							value="Biometric"
+							icon={isAndroid ? <FingerprintIcon /> : <ScanFaceIcon />}
+							onClick={() => {}}
+						/>
+						<KeyboardKey value="0" onClick={() => handleKeyPress("0")} />
+						<KeyboardKey
 							value="Delete"
 							icon={<DeleteIcon />}
 							onClick={handleDelete}
 							disabled={pin.length === 0}
-						/>
-						<KeyboardKey value="0" onClick={() => handleKeyPress("0")} />
-						<KeyboardKey
-							value="Biometric"
-							icon={isAndroid ? <FingerprintIcon /> : <ScanFaceIcon />}
-							onClick={() => {}}
 						/>
 					</div>
 				</div>

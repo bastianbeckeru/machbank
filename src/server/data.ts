@@ -1,0 +1,52 @@
+export const userData = {
+	profile: {
+		name: "Bastián",
+		fullName: "Bastián Becker",
+		handle: "@bastianbeckeru",
+		image: "https://github.com/bastianbeckeru.png",
+		email: "example@bci.cl",
+		birthday: "2001-09-09",
+	},
+	movements: [
+		{
+			id: 1,
+			title: "Spotify Subscription",
+			date: "Today, 10:42 AM",
+			amount: "-$9.99",
+			type: "expense",
+			icon: "music",
+		},
+		{
+			id: 2,
+			title: "Salary Transfer",
+			date: "Yesterday, 09:00 AM",
+			amount: "+$4,250.00",
+			type: "income",
+			icon: "briefcase",
+		},
+		{
+			id: 3,
+			title: "Uber Rides",
+			date: "Mar 29, 08:15 PM",
+			amount: "-$24.50",
+			type: "expense",
+			icon: "car",
+		},
+		{
+			id: 4,
+			title: "Starbucks",
+			date: "Mar 29, 08:30 AM",
+			amount: "-$5.40",
+			type: "expense",
+			icon: "coffee",
+		},
+		{
+			id: 5,
+			title: "Amazon AWS",
+			date: "Mar 28, 11:00 PM",
+			amount: "-$12.00",
+			type: "expense",
+			icon: "server",
+		},
+	],
+};

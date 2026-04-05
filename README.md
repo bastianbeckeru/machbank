@@ -19,3 +19,26 @@ pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Changes
+
+### Home Header
+- Remove hamburger icon.
+  - You're already showing a button through user avatar.
+- Add contextual hello message.
+  - Good morning, afternoon, happy birthday and more. More warm and close to the user.
+
+### Home Sidebar
+- Uppercase section titles, compact the buttons and remove the borders. This look cleaner.
+
+### Balances Carousel
+- Remove Credit Card balance if the user doesn't have one.
+  - A $0 balance with a CTA to activate the card is redundant when Home already has multiple activation CTAs.
+- Remove Cashback balance.
+  - It fits better in the Benefits section, where it adds value and encourages users to discover other discounts.
+
+### Quick Actions
+- Exclude MACH Premium.
+  - It's not a quick action, it's a product.
+- Exclude Credit Card.
+  - It's not a quick action, it's a product.

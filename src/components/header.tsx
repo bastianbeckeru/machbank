@@ -2,11 +2,9 @@
 
 import {
 	Bell,
-	ChevronRight,
 	CreditCard,
 	HelpCircle,
 	Lock,
-	LogOut,
 	Settings,
 	Shield,
 	User,
@@ -18,7 +16,6 @@ import {
 	Sheet,
 	SheetContent,
 	SheetDescription,
-	SheetFooter,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
@@ -52,7 +49,29 @@ const menuSections = [
 	},
 ];
 
+function getGreeting(name: string, birthday?: string): string {
+	const now = new Date();
+	const hour = now.getHours();
+
+	if (birthday) {
+		const [, month, day] = birthday.split("-").map(Number);
+		if (now.getMonth() + 1 === month && now.getDate() === day) {
+			return `¡Feliz cumpleaños, ${name}! 🎂`;
+		}
+	}
+
+	if (hour >= 5 && hour < 12) return `¡Buenos días, ${name}!`;
+	if (hour >= 12 && hour < 20) return `¡Buenas tardes, ${name}!`;
+
+	return `¡Hola, ${name}!`;
+}
+
 export default function Header() {
+	const greeting = getGreeting(
+		userData.profile.name,
+		userData.profile.birthday,
+	);
+
 	return (
 		<div className="flex py-2 px-6 items-center justify-between bg-primary text-background">
 			<Sheet>
@@ -117,9 +136,9 @@ export default function Header() {
 			</Sheet>
 
 			<div className="flex-1 px-4">
-				<p className="font-semibold text-xl">¡Hola {userData.profile.name}!</p>
+				<p className="font-semibold text-lg">{greeting}</p>
 			</div>
-			<Button>
+			<Button variant="ghost" className="rounded-md px-0 py-0">
 				<Bell className="size-6" />
 			</Button>
 		</div>

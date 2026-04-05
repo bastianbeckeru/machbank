@@ -135,13 +135,7 @@ body {
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-foreground text-background;
-	}
 	html {
-		@apply font-sans;
+		@apply border-border outline-ring/50 bg-background text-foreground font-sans;
 	}
 }

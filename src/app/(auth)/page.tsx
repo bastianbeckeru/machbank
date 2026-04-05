@@ -46,9 +46,11 @@ export default function AuthPage() {
 		setPin((prev) => prev.slice(0, -1));
 	};
 
+	// #6200EE
+
 	return (
 		<MobileFrame>
-			<div className="h-dvh bg-[#6200EE] flex flex-col">
+			<div className="h-dvh bg-primary text-background flex flex-col">
 				<div className="flex-1 flex flex-col gap-16 items-center justify-center text-center">
 					<span>Ingresa tu PIN</span>
 					<PinDisplay pin={pin} />

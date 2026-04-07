@@ -1,34 +1,11 @@
 "use client";
 
-import {
-	ArrowRightLeftIcon,
-	CreditCard,
-	Home,
-	PiggyBankIcon,
-	QrCode,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CreditCard, PiggyBankIcon } from "lucide-react";
+import BottomNavbar from "./bottom-navbar";
 import Header from "./header";
-import { Button } from "./ui/button";
+import QuickActions from "./quick-actions";
 import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
 import { ScrollArea } from "./ui/scroll-area";
-
-const quickActionsItems = [
-	{ label: "Créditos de Consumo", icon: CreditCard },
-	{ label: "Paga tus cuentas", icon: CreditCard },
-	{ label: "Mis Beneficios", icon: CreditCard },
-	{ label: "Abona tu sueldo", icon: CreditCard },
-	{ label: "bip!QR", icon: CreditCard },
-	{ label: "Transferir a Terceros", icon: CreditCard },
-];
-
-const bottomNavItems = [
-	{ label: "Inicio", icon: Home },
-	{ label: "Transferir", icon: ArrowRightLeftIcon },
-	//{ label: "Pago QR", icon: QrCode },
-	{ label: "Tarjetas", icon: CreditCard },
-	{ label: "Inversiones", icon: PiggyBankIcon },
-];
 
 export function BankingDashboard() {
 	return (
@@ -38,8 +15,8 @@ export function BankingDashboard() {
 			<ScrollArea className="overflow-y-auto no-scrollbar">
 				<div className="pb-2 flex flex-col">
 					<Carousel opts={{ align: "start" }}>
-						<CarouselContent className="px-6 h-40 py-2 text-background">
-							<CarouselItem className="basis-auto">
+						<CarouselContent className="-ml-6 pl-6 py-2 text-background">
+							<CarouselItem className="pl-6 basis-auto">
 								<div className="shadow-lg shadow-indigo-500/20 h-32 w-72 flex flex-col px-4 py-3 gap-1 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600">
 									<div className="flex flex-row items-center gap-2">
 										<CreditCard className="size-5" />
@@ -50,9 +27,25 @@ export function BankingDashboard() {
 								</div>
 							</CarouselItem>
 
-							<CarouselItem className="basis-auto">
+							<CarouselItem className="pl-6 basis-auto">
 								<div className="shadow-lg shadow-indigo-500/20 h-32 w-72 flex flex-col px-4 py-3 gap-1 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600">
-									<p className="font-medium">Inversiones</p>
+									<div className="flex flex-row items-center gap-2">
+										<CreditCard className="size-5" />
+										<p className="font-medium">Tarjeta de Crédito</p>
+									</div>
+									<p className="text-sm font-medium">Cupo</p>
+									<h1 className="text-4xl font-bold tracking-tight">
+										$500.000
+									</h1>
+								</div>
+							</CarouselItem>
+
+							<CarouselItem className="pl-6 basis-auto">
+								<div className="shadow-lg shadow-indigo-500/20 h-32 w-72 flex flex-col px-4 py-3 gap-1 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600">
+									<div className="flex flex-row items-center gap-2">
+										<PiggyBankIcon className="size-5" />
+										<p className="font-medium">Inversiones</p>
+									</div>
 									<p className="text-sm font-medium">Total inversiones</p>
 									<h1 className="text-4xl font-bold tracking-tight">
 										$950.000
@@ -90,56 +83,7 @@ export function BankingDashboard() {
 				</div>
 			</ScrollArea>
 
-			<BottomNavbar />
-		</div>
-	);
-}
-
-function BottomNavbar({ className }: { className?: string }) {
-	return (
-		<div
-			className={cn(
-				"flex flex-row items-center justify-around rounded-t-3xl px-2 py-2 bg-background",
-				className,
-			)}
-		>
-			{bottomNavItems.map((item) => (
-				<Button
-					key={item.label}
-					variant="ghost"
-					className={cn("text-muted-foreground p-4 rounded-full")}
-				>
-					<item.icon className="size-6" />
-					<span className="sr-only">{item.label}</span>
-				</Button>
-			))}
-		</div>
-	);
-}
-
-function QuickActions({ className }: { className?: string }) {
-	return (
-		<div className={cn("flex flex-col gap-2", className)}>
-			<div className="flex flex-row items-center justify-between">
-				<h2 className="text-foreground">¿Qué hacemos hoy?</h2>
-				<Button className="text-xs text-primary rounded-md bg-primary/10 font-semibold">
-					Ver más
-				</Button>
-			</div>
-
-			<div className="grid grid-cols-3 grid-rows-2 h-52 gap-2">
-				{quickActionsItems.map((item) => (
-					<Button
-						key={item.label}
-						className="size-full p-2 rounded-lg bg-background shadow-sm flex-col items-start justify-start"
-					>
-						<item.icon className="size-6 text-primary" />
-						<p className="text-left font-bold text-balance text-foreground">
-							{item.label}
-						</p>
-					</Button>
-				))}
-			</div>
+			<BottomNavbar hideLabels />
 		</div>
 	);
 }

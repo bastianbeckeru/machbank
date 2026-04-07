@@ -7,6 +7,14 @@ export const userData = {
 		email: "example@bci.cl",
 		birthday: "2001-09-09",
 	},
+	products: {
+		savings: {
+			currentValue: 975000,
+			depositAmount: 950000,
+			gainAmount: 25000,
+			gainPercentage: 2.53,
+		},
+	},
 	movements: [
 		{
 			id: 1,

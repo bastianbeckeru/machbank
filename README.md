@@ -20,7 +20,11 @@ pnpm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Changes
+## Changes vs Original App
+
+### Auth
+- Add animation when the user logs in with PIN.
+- Add dynamic FaceID / TouchID icons based on the device.
 
 ### Home Header
 - Remove hamburger icon.
@@ -30,6 +34,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Home Sidebar
 - Uppercase section titles, compact the buttons and remove the borders. This look cleaner.
+- Reorder and rename items.
 
 ### Balances Carousel
 - Remove Credit Card balance if the user doesn't have one.
@@ -42,3 +47,6 @@ Open [http://localhost:3000](http://localhost:3000).
   - It's not a quick action, it's a product.
 - Exclude Credit Card.
   - It's not a quick action, it's a product.
+
+### Cards Section
+- Homologate the design through cards.

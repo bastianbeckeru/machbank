@@ -2,12 +2,14 @@
 
 import {
 	Bell,
-	CreditCard,
-	HelpCircle,
+	CreditCardIcon,
+	DiamondIcon,
+	HelpCircleIcon,
 	Lock,
-	Settings,
-	Shield,
-	User,
+	LockIcon,
+	MessageCircleQuestionMarkIcon,
+	UserCircle2Icon,
+	UsersRoundIcon,
 } from "lucide-react";
 import { userData } from "@/server/data";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -25,26 +27,26 @@ const menuSections = [
 	{
 		title: "Sobre mi cuenta",
 		items: [
-			{ icon: User, label: "MACH Premium" },
-			{ icon: CreditCard, label: "Ajustes de mi cuenta" },
-			{ icon: Lock, label: "Mis validaciones" },
-			{ icon: Lock, label: "Seguridad de mi cuenta" },
+			{ icon: DiamondIcon, label: "MACH Premium" },
+			{ icon: LockIcon, label: "Seguridad" },
+			{ icon: UserCircle2Icon, label: "Datos personales" },
+			{ icon: Lock, label: "Validaciones" },
+			{ icon: Lock, label: "Contratos" },
 			{ icon: Lock, label: "Límites transaccionales" },
-			{ icon: Lock, label: "Mis contratos" },
 		],
 	},
 	{
 		title: "Autorizaciones",
 		items: [
-			{ icon: Settings, label: "Autorización TuMACH" },
-			{ icon: Shield, label: "Medio de pago alternativo" },
+			{ icon: UsersRoundIcon, label: "Autorización TuMACH" },
+			{ icon: CreditCardIcon, label: "Medio de pago alternativo" },
 		],
 	},
 	{
 		title: "Dudas y consultas",
 		items: [
-			{ icon: HelpCircle, label: "Centro de ayuda" },
-			{ icon: HelpCircle, label: "Ayuda en línea" },
+			{ icon: HelpCircleIcon, label: "Centro de ayuda" },
+			{ icon: MessageCircleQuestionMarkIcon, label: "Ayuda en línea" },
 		],
 	},
 ];
@@ -84,7 +86,7 @@ export default function Header() {
 						<AvatarFallback>{userData.profile.name.charAt(0)}</AvatarFallback>
 					</Avatar>
 				</SheetTrigger>
-				<SheetContent side="left" className="flex flex-col p-0">
+				<SheetContent className="flex flex-col p-0">
 					<SheetHeader className="p-6">
 						<div className="flex items-center gap-4">
 							<Avatar className="size-12 ring-2 ring-primary/25 ring-offset-2 ring-offset-background">
@@ -128,7 +130,7 @@ export default function Header() {
 
 						<div className="border-t border-border p-3">
 							<p className="text-xs text-muted-foreground text-center w-full">
-								Versión 6.42.3
+								MACHBANK - Versión 6.42.3
 							</p>
 						</div>
 					</div>

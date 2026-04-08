@@ -6,7 +6,9 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import BottomNavbar from "@/components/bottom-navbar";
 import { userData } from "@/server/data";
+import { formatCurrency } from "@/utils/numbers";
 
 export default function InvestmentPage() {
 	return (
@@ -31,7 +33,7 @@ export default function InvestmentPage() {
 							Saldo total en inversiones
 						</p>
 						<h2 className="mt-1 text-3xl font-bold tracking-tight">
-							${userData.products.savings.currentValue.toLocaleString("es-CL")}
+							{formatCurrency(userData.products.savings.currentValue)}
 						</h2>
 						<div className="mt-3 flex items-center gap-1.5 text-emerald-300">
 							<TrendingUp className="size-4" />
@@ -40,34 +42,30 @@ export default function InvestmentPage() {
 					</div>
 				</div>
 
-				{/* Investment Options */}
 				<div className="px-6 mt-4 flex flex-col gap-3">
 					<p className="text-lg font-bold text-muted-foreground">
 						Mis productos
 					</p>
 
-					{/* Ahorro 24/7 */}
 					<Link
 						href="/investment/savings"
-						className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-accent active:bg-accent/80"
+						className="shadow-md shadow-primary/5 flex items-center gap-2 rounded-xl border border-primary/10 bg-card p-4 transition-colors"
 					>
-						<div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-indigo-500/10">
-							<PiggyBank className="size-5 text-primary" />
+						<div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
+							<PiggyBank className="size-6 text-primary" />
 						</div>
-						<div className="flex-1 min-w-0">
-							<p className="font-semibold text-foreground">Ahorro 24/7</p>
-							<p className="text-sm text-muted-foreground">
-								$
-								{userData.products.savings.currentValue.toLocaleString("es-CL")}
+						<div className="flex-1 flex flex-row justify-between min-w-0 ml-2">
+							<p className="font-semibold">Ahorro 24/7</p>
+							<p className="font-medium">
+								${formatCurrency(userData.products.savings.currentValue)}
 							</p>
 						</div>
 						<ChevronRight className="size-5 text-muted-foreground" />
 					</Link>
 
-					{/* Invertir en Fondos Mutuos */}
 					<button
 						type="button"
-						className="flex items-center gap-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 transition-colors hover:bg-primary/10 active:bg-primary/15"
+						className="flex items-center gap-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 transition-colors"
 					>
 						<div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
 							<Plus className="size-5 text-primary" />
@@ -83,6 +81,8 @@ export default function InvestmentPage() {
 					</button>
 				</div>
 			</div>
+
+			<BottomNavbar />
 		</>
 	);
 }

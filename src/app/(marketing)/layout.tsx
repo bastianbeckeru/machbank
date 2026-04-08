@@ -1,4 +1,3 @@
-import BottomNavbar from "@/components/bottom-navbar";
 import { MobileFrame } from "@/components/MobileFrame";
 
 export default function MarketingLayout({
@@ -10,7 +9,6 @@ export default function MarketingLayout({
 		<MobileFrame>
 			<div className="h-dvh w-dvw grid grid-rows-[auto_1fr_auto]">
 				{children}
-				<BottomNavbar />
 			</div>
 		</MobileFrame>
 	);

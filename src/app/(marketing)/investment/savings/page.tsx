@@ -9,6 +9,7 @@ import {
 	ChevronRightIcon,
 	DownloadIcon,
 	HelpCircle,
+	type LucideIcon,
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
@@ -33,39 +34,45 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/numbers";
 import { formatDate } from "@/utils/strings";
 
-// --- Generate realistic daily data ---
 const ANNUAL_RATE = 0.046;
 const DAILY_RATE = (1 + ANNUAL_RATE) ** (1 / 365) - 1;
 
 interface DayEntry {
-	date: string; // ISO date
+	date: string;
 	deposited: number;
 	pnl: number;
 }
 
-const transactions: { id: number; date: string; amount: number }[] = [
-	{ id: 3, date: "2025-03-31", amount: 70000 }, // bono o mes tranquilo
-	{ id: 4, date: "2025-04-30", amount: 50000 }, // rutina
-	{ id: 5, date: "2025-05-15", amount: 20000 }, // abono chico mid-month
+type ChartEntry = DayEntry & { value: number };
+
+interface Transaction {
+	id: number;
+	date: string;
+	amount: number;
+}
+
+const transactions: Transaction[] = [
+	{ id: 3, date: "2025-03-31", amount: 70000 },
+	{ id: 4, date: "2025-04-30", amount: 50000 },
+	{ id: 5, date: "2025-05-15", amount: 20000 },
 	{ id: 6, date: "2025-05-31", amount: 40000 },
-	{ id: 7, date: "2025-06-30", amount: -150000 }, // retiro: vacaciones / emergencia
-	{ id: 8, date: "2025-07-31", amount: 60000 }, // recuperando
+	{ id: 7, date: "2025-06-30", amount: -150000 },
+	{ id: 8, date: "2025-07-31", amount: 60000 },
 	{ id: 9, date: "2025-08-29", amount: 80000 },
 	{ id: 10, date: "2025-09-30", amount: 50000 },
-	{ id: 11, date: "2025-10-31", amount: 90000 }, // aguinaldo fiestas patrias
+	{ id: 11, date: "2025-10-31", amount: 90000 },
 	{ id: 12, date: "2025-11-28", amount: 50000 },
-	{ id: 13, date: "2025-12-31", amount: -80000 }, // gastos navidad/año nuevo
+	{ id: 13, date: "2025-12-31", amount: -80000 },
 	{ id: 14, date: "2026-01-31", amount: 70000 },
 	{ id: 15, date: "2026-02-28", amount: 60000 },
 	{ id: 16, date: "2026-03-31", amount: 80000 },
-	{ id: 17, date: "2026-04-07", amount: 50000 }, // hoy
+	{ id: 17, date: "2026-04-07", amount: 50000 },
 ];
 
 function generateFullData(): DayEntry[] {
 	const start = new Date("2025-01-01");
 	const end = new Date();
 
-	// Build a map of date -> amount for quick lookup
 	const txMap = new Map<string, number>();
 	for (const tx of transactions) {
 		txMap.set(tx.date, (txMap.get(tx.date) ?? 0) + tx.amount);
@@ -100,83 +107,118 @@ function generateFullData(): DayEntry[] {
 
 const fullData = generateFullData();
 
-function aggregateByWeek(
-	data: (DayEntry & { value: number })[],
-): (DayEntry & { value: number })[] {
+function aggregateByWeek(data: ChartEntry[]): ChartEntry[] {
 	if (data.length === 0) return data;
-	const weeks: (DayEntry & { value: number })[] = [];
-	for (let i = 0; i < data.length; i++) {
-		const d = new Date(data[i].date);
-		// Push last entry of each week (Sunday) or the very last entry
-		if (d.getDay() === 0 || i === data.length - 1) {
-			weeks.push(data[i]);
-		}
-	}
-	return weeks;
+
+	return data.filter(
+		(entry, i) => new Date(entry.date).getDay() === 0 || i === data.length - 1,
+	);
 }
 
 type TimeRange = "1M" | "3M" | "6M" | "1A" | "MÁX";
-const timeRanges: TimeRange[] = ["1M", "3M", "6M", "1A", "MÁX"];
 
-function getSliceCount(range: TimeRange, total: number): number {
-	switch (range) {
-		case "1M":
-			return 30;
-		case "3M":
-			return 90;
-		case "6M":
-			return 180;
-		case "1A":
-			return 365;
-		case "MÁX":
-			return total;
-	}
-}
+const TIME_RANGES: TimeRange[] = ["1M", "3M", "6M", "1A", "MÁX"];
 
-const chartConfig = {
+const SLICE_DAYS: Record<TimeRange, number | null> = {
+	"1M": 30,
+	"3M": 90,
+	"6M": 180,
+	"1A": 365,
+	MÁX: null,
+};
+
+const CHART_CONFIG = {
 	value: {
 		label: "Saldo",
 		color: "var(--color-primary)",
 	},
 } satisfies ChartConfig;
 
+const ACTION_BUTTON_CLASS =
+	"flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full";
+
+const actions: { icon: LucideIcon; label: string; iconClass?: string }[] = [
+	{ icon: DownloadIcon, label: "Retirar" },
+	{ icon: DownloadIcon, label: "Ahorrar", iconClass: "rotate-180" },
+	{ icon: CalendarIcon, label: "Programar" },
+];
+
+function TransactionRow({ tx }: { tx: Transaction }) {
+	const isDeposit = tx.amount > 0;
+
+	return (
+		<div className="flex items-center gap-3.5 py-3">
+			<div
+				className={cn(
+					"flex size-9 shrink-0 items-center justify-center rounded-full",
+					isDeposit ? "bg-emerald-500/10" : "bg-orange-500/10",
+				)}
+			>
+				{isDeposit ? (
+					<ArrowDownLeft className="size-4 text-emerald-600" />
+				) : (
+					<ArrowUpRight className="size-4 text-orange-500" />
+				)}
+			</div>
+			<div className="flex-1 min-w-0">
+				<p className="text-sm font-semibold text-foreground">
+					{isDeposit ? "Depósito" : "Retiro"}
+				</p>
+				<p className="text-xs text-muted-foreground">
+					{formatDate(tx.date, "compact")}
+				</p>
+			</div>
+			<p
+				className={cn(
+					"text-sm font-bold tabular-nums",
+					isDeposit ? "text-emerald-600" : "text-foreground",
+				)}
+			>
+				{formatCurrency(tx.amount, true)}
+			</p>
+		</div>
+	);
+}
+
 export default function SavingsPage() {
 	const [selectedRange, setSelectedRange] = useState<TimeRange>("MÁX");
-	const [activeEntry, setActiveEntry] = useState<{
-		deposited: number;
-		pnl: number;
-	}>(fullData[fullData.length - 1]);
+	const [activeEntry, setActiveEntry] = useState<Pick<DayEntry, "deposited" | "pnl">>(
+		fullData[fullData.length - 1],
+	);
 	const [isPressing, setIsPressing] = useState(false);
 
 	const chartData = useMemo(() => {
-		const count = getSliceCount(selectedRange, fullData.length);
-		const sliced = fullData.slice(-count).map((d) => ({
+		const days = SLICE_DAYS[selectedRange];
+		const sliced = fullData.slice(days ? -days : 0).map((d) => ({
 			...d,
 			value: d.deposited + d.pnl,
 		}));
-		return selectedRange === "MÁX" ? aggregateByWeek(sliced) : sliced;
+		return days ? sliced : aggregateByWeek(sliced);
 	}, [selectedRange]);
 
-	const handlePressStart = ({ activeIndex }: { activeIndex: number }) => {
-		const entry = chartData[Number(activeIndex)];
+	const updateEntry = (index: number) => {
+		const entry = chartData[index];
 		if (!entry) return;
-		setIsPressing(true);
 		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
 	};
 
+	const handlePressStart = ({ activeIndex }: { activeIndex: number }) => {
+		setIsPressing(true);
+		updateEntry(Number(activeIndex));
+	};
+
 	const handlePressEnd = () => {
-		const lastEntry = chartData[chartData.length - 1];
-		if (!lastEntry) return;
 		setIsPressing(false);
-		setActiveEntry({ deposited: lastEntry.deposited, pnl: lastEntry.pnl });
+		updateEntry(chartData.length - 1);
 	};
 
 	const handlePressMove = ({ activeIndex }: { activeIndex: number }) => {
 		if (!isPressing) return;
-		const entry = chartData[Number(activeIndex)];
-		if (!entry) return;
-		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
+		updateEntry(Number(activeIndex));
 	};
+
+	const isNegative = activeEntry.pnl < 0;
+	const totalBalance = activeEntry.deposited + activeEntry.pnl;
 
 	return (
 		<>
@@ -202,7 +244,7 @@ export default function SavingsPage() {
 						Total ahorrado
 					</p>
 					<h2 className="mt-1 text-4xl font-bold tracking-tight text-foreground">
-						{formatCurrency(activeEntry.deposited + activeEntry.pnl)}
+						{formatCurrency(totalBalance)}
 					</h2>
 
 					<div
@@ -214,15 +256,14 @@ export default function SavingsPage() {
 						<div
 							className={cn(
 								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 px-3 py-2",
-								activeEntry.pnl < 0 && "text-rose-600 bg-rose-500/10",
+								isNegative && "text-rose-600 bg-rose-500/10",
 								isPressing && "bg-transparent",
 							)}
 						>
 							<TrendingUp
 								className={cn(
 									"size-3.5 text-emerald-600",
-									activeEntry.pnl < 0 &&
-										"rotate-180 -scale-x-100 text-rose-600",
+									isNegative && "rotate-180 -scale-x-100 text-rose-600",
 								)}
 							/>
 							<span
@@ -242,6 +283,7 @@ export default function SavingsPage() {
 								ganancia
 							</span>
 						</div>
+
 						<div
 							className={cn(
 								"hidden",
@@ -251,7 +293,7 @@ export default function SavingsPage() {
 							<BanknoteArrowUpIcon
 								className={cn(
 									"size-3.5 text-primary",
-									activeEntry.pnl < 0 && "rotate-180 -scale-x-100",
+									isNegative && "rotate-180 -scale-x-100",
 								)}
 							/>
 							<span
@@ -271,6 +313,7 @@ export default function SavingsPage() {
 								depositado
 							</span>
 						</div>
+
 						<div
 							className={cn(
 								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-2",
@@ -285,7 +328,7 @@ export default function SavingsPage() {
 				</div>
 
 				<div className="space-y-4 mb-7">
-					<ChartContainer config={chartConfig} className="h-40 mt-8 w-full">
+					<ChartContainer config={CHART_CONFIG} className="h-40 mt-8 w-full">
 						<AreaChart
 							accessibilityLayer
 							data={chartData}
@@ -342,14 +385,12 @@ export default function SavingsPage() {
 							<ChartTooltip
 								active={isPressing}
 								isAnimationActive={false}
-								cursor={{
-									strokeDasharray: "5",
-								}}
+								cursor={{ strokeDasharray: "5" }}
 								content={({ activeIndex }) => {
 									if (activeIndex == null) return null;
-
 									const entry = chartData[Number(activeIndex)];
 									if (!entry) return null;
+
 									return (
 										<div className="select-none rounded-md border border-muted-foreground/50 bg-background px-3 py-1.5 shadow-sm">
 											<time className="text-xs font-medium text-foreground">
@@ -363,7 +404,7 @@ export default function SavingsPage() {
 					</ChartContainer>
 
 					<div className="grid grid-cols-5 px-6 items-center justify-center gap-2">
-						{timeRanges.map((range) => (
+						{TIME_RANGES.map((range) => (
 							<Button
 								key={range}
 								size="sm"
@@ -380,27 +421,16 @@ export default function SavingsPage() {
 				</div>
 
 				<div className="grid grid-cols-3 px-6 gap-3">
-					<Button
-						variant="outline"
-						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
-					>
-						<DownloadIcon className="size-6 text-primary" />
-						Retirar
-					</Button>
-					<Button
-						variant="outline"
-						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
-					>
-						<DownloadIcon className="size-6 text-primary rotate-180" />
-						Ahorrar
-					</Button>
-					<Button
-						variant="outline"
-						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
-					>
-						<CalendarIcon className="size-6 text-primary" />
-						Programar
-					</Button>
+					{actions.map(({ icon: Icon, label, iconClass }) => (
+						<Button
+							key={label}
+							variant="outline"
+							className={ACTION_BUTTON_CLASS}
+						>
+							<Icon className={cn("size-6 text-primary", iconClass)} />
+							{label}
+						</Button>
+					))}
 				</div>
 
 				<div className="px-6 my-4 space-y-1">
@@ -427,42 +457,10 @@ export default function SavingsPage() {
 
 								<ScrollArea className="h-96">
 									<div className="px-4 pb-0">
-										{transactions.map((m) => (
-											<div
-												key={m.id}
-												className="flex items-center gap-3.5 py-3"
-											>
-												<div
-													className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-														m.amount > 0
-															? "bg-emerald-500/10"
-															: "bg-orange-500/10"
-													}`}
-												>
-													{m.amount > 0 ? (
-														<ArrowDownLeft className="size-4 text-emerald-600" />
-													) : (
-														<ArrowUpRight className="size-4 text-orange-500" />
-													)}
-												</div>
-												<div className="flex-1 min-w-0">
-													<p className="text-sm font-semibold text-foreground">
-														{m.amount > 0 ? "Depósito" : "Retiro"}
-													</p>
-													<p className="text-xs text-muted-foreground">
-														{formatDate(m.date, "compact")}
-													</p>
-												</div>
-												<p
-													className={`text-sm font-bold tabular-nums ${
-														m.amount > 0
-															? "text-emerald-600"
-															: "text-foreground"
-													}`}
-												>
-													{formatCurrency(m.amount, true)}
-												</p>
-											</div>
+										{[...transactions]
+										.sort((a, b) => b.date.localeCompare(a.date))
+										.map((tx) => (
+											<TransactionRow key={tx.id} tx={tx} />
 										))}
 									</div>
 								</ScrollArea>

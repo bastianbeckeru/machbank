@@ -83,7 +83,7 @@ export function BankingDashboard() {
 				</div>
 			</ScrollArea>
 
-			<BottomNavbar hideLabels />
+			<BottomNavbar />
 		</div>
 	);
 }

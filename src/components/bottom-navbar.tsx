@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const bottomNavItems = [
 	{ label: "Inicio", icon: HomeIcon, href: "/home" },
-	{ label: "Transferir", icon: ArrowRightLeftIcon, href: "/transfer" },
+	{ label: "Transferencias", icon: ArrowRightLeftIcon, href: "/transfers" },
 	{ label: "Pago QR", icon: QrCodeIcon, href: "/qr" },
 	{ label: "Tarjetas", icon: CreditCardIcon, href: "/cards" },
 	{ label: "Inversiones", icon: PiggyBankIcon, href: "/investment" },

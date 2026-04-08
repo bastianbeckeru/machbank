@@ -4,6 +4,8 @@ import {
 	Bell,
 	CreditCardIcon,
 	DiamondIcon,
+	FileTextIcon,
+	HeadsetIcon,
 	HelpCircleIcon,
 	Lock,
 	LockIcon,
@@ -30,9 +32,7 @@ const menuSections = [
 			{ icon: DiamondIcon, label: "MACH Premium" },
 			{ icon: LockIcon, label: "Seguridad" },
 			{ icon: UserCircle2Icon, label: "Datos personales" },
-			{ icon: Lock, label: "Validaciones" },
-			{ icon: Lock, label: "Contratos" },
-			{ icon: Lock, label: "Límites transaccionales" },
+			{ icon: FileTextIcon, label: "Cartolas" },
 		],
 	},
 	{
@@ -46,7 +46,7 @@ const menuSections = [
 		title: "Dudas y consultas",
 		items: [
 			{ icon: HelpCircleIcon, label: "Centro de ayuda" },
-			{ icon: MessageCircleQuestionMarkIcon, label: "Ayuda en línea" },
+			{ icon: HeadsetIcon, label: "Ayuda en línea" },
 		],
 	},
 ];

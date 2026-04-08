@@ -28,7 +28,10 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/utils/numbers";
+import { formatDate } from "@/utils/strings";
 
 // --- Generate realistic daily data ---
 const ANNUAL_RATE = 0.046;
@@ -282,7 +285,7 @@ export default function SavingsPage() {
 				</div>
 
 				<div className="space-y-4 mb-7">
-					<ChartContainer config={chartConfig} className="h-48 w-full">
+					<ChartContainer config={chartConfig} className="h-40 mt-8 w-full">
 						<AreaChart
 							accessibilityLayer
 							data={chartData}
@@ -323,6 +326,7 @@ export default function SavingsPage() {
 								fillOpacity={0.25}
 								stroke="var(--color-primary)"
 								strokeWidth={2.5}
+								animationDuration={500}
 								activeDot={
 									isPressing
 										? {
@@ -345,8 +349,9 @@ export default function SavingsPage() {
 									if (activeIndex == null) return null;
 
 									const entry = chartData[Number(activeIndex)];
+									if (!entry) return null;
 									return (
-										<div className="rounded-md border border-muted-foreground/50 bg-background px-3 py-1.5 shadow-sm">
+										<div className="select-none rounded-md border border-muted-foreground/50 bg-background px-3 py-1.5 shadow-sm">
 											<time className="text-xs font-medium text-foreground">
 												{formatDate(entry.date)}
 											</time>
@@ -377,21 +382,21 @@ export default function SavingsPage() {
 				<div className="grid grid-cols-3 px-6 gap-3">
 					<Button
 						variant="outline"
-						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
 					>
 						<DownloadIcon className="size-6 text-primary" />
 						Retirar
 					</Button>
 					<Button
 						variant="outline"
-						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
 					>
 						<DownloadIcon className="size-6 text-primary rotate-180" />
 						Ahorrar
 					</Button>
 					<Button
 						variant="outline"
-						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+						className="flex-col justify-start border-primary/10 items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
 					>
 						<CalendarIcon className="size-6 text-primary" />
 						Programar
@@ -405,10 +410,10 @@ export default function SavingsPage() {
 						<DrawerTrigger asChild>
 							<Button
 								variant="outline"
-								className="w-full h-14 rounded-xl justify-between"
+								className="w-full h-14 justify-between border-primary/10 text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold"
 							>
 								Movimientos
-								<ChevronRightIcon className="size-5" />
+								<ChevronRightIcon className="size-5 text-muted-foreground" />
 							</Button>
 						</DrawerTrigger>
 						<DrawerContent>
@@ -420,42 +425,47 @@ export default function SavingsPage() {
 									</DrawerDescription>
 								</DrawerHeader>
 
-								<div className="px-4 pb-0">
-									{transactions.map((m) => (
-										<div key={m.id} className="flex items-center gap-3.5 py-3">
+								<ScrollArea className="h-96">
+									<div className="px-4 pb-0">
+										{transactions.map((m) => (
 											<div
-												className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-													m.amount > 0
-														? "bg-emerald-500/10"
-														: "bg-orange-500/10"
-												}`}
+												key={m.id}
+												className="flex items-center gap-3.5 py-3"
 											>
-												{m.amount > 0 ? (
-													<ArrowDownLeft className="size-4 text-emerald-600" />
-												) : (
-													<ArrowUpRight className="size-4 text-orange-500" />
-												)}
-											</div>
-											<div className="flex-1 min-w-0">
-												<p className="text-sm font-semibold text-foreground">
-													{m.amount > 0 ? "Depósito" : "Retiro"}
+												<div
+													className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
+														m.amount > 0
+															? "bg-emerald-500/10"
+															: "bg-orange-500/10"
+													}`}
+												>
+													{m.amount > 0 ? (
+														<ArrowDownLeft className="size-4 text-emerald-600" />
+													) : (
+														<ArrowUpRight className="size-4 text-orange-500" />
+													)}
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-semibold text-foreground">
+														{m.amount > 0 ? "Depósito" : "Retiro"}
+													</p>
+													<p className="text-xs text-muted-foreground">
+														{formatDate(m.date, "compact")}
+													</p>
+												</div>
+												<p
+													className={`text-sm font-bold tabular-nums ${
+														m.amount > 0
+															? "text-emerald-600"
+															: "text-foreground"
+													}`}
+												>
+													{formatCurrency(m.amount, true)}
 												</p>
-												<p className="text-xs text-muted-foreground">
-													{new Date(m.date).toLocaleDateString("es-CL")}
-												</p>
 											</div>
-											<p
-												className={`text-sm font-bold tabular-nums ${
-													m.amount > 0 ? "text-emerald-600" : "text-foreground"
-												}`}
-											>
-												{m.amount > 0 ? "+" : "-"}
-												{" $"}
-												{m.amount.toLocaleString("es-CL")}
-											</p>
-										</div>
-									))}
-								</div>
+										))}
+									</div>
+								</ScrollArea>
 							</div>
 						</DrawerContent>
 					</Drawer>
@@ -463,21 +473,4 @@ export default function SavingsPage() {
 			</div>
 		</>
 	);
-}
-
-function formatCurrency(amount: number) {
-	return new Intl.NumberFormat("es-CL", {
-		style: "currency",
-		currency: "CLP",
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	}).format(amount);
-}
-
-function formatDate(date: string): string {
-	return new Date(date).toLocaleDateString("es-CL", {
-		day: "numeric",
-		month: "short",
-		year: "numeric",
-	});
 }

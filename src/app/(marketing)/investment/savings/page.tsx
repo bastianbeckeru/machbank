@@ -4,19 +4,20 @@ import {
 	ArrowDownLeft,
 	ArrowLeft,
 	ArrowUpRight,
+	CalendarIcon,
 	ChevronRightIcon,
+	DownloadIcon,
 	HelpCircle,
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart } from "recharts";
 import { Button } from "@/components/ui/button";
 import {
 	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
-	ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
 	Drawer,
@@ -26,69 +27,84 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
-const fullData = [
-	// Febrero
-	{ date: "2026-W07", label: "9 Feb", value: 0 },
-	{ date: "2026-W08", label: "16 Feb", value: 0 },
-	{ date: "2026-W09", label: "23 Feb", value: 500000 },
-	// Marzo
-	{ date: "2026-W10", label: "2 Mar", value: 475000 },
-	{ date: "2026-W11", label: "9 Mar", value: 475000 },
-	{ date: "2026-W12", label: "16 Mar", value: 725000 },
-	{ date: "2026-W13", label: "23 Mar", value: 725000 },
-	{ date: "2026-W14", label: "30 Mar", value: 975000 },
-	// Abril
-	{ date: "2026-W15", label: "6 Abr", value: 950000 },
+// --- Generate realistic daily data ---
+const ANNUAL_RATE = 0.046;
+const DAILY_RATE = ANNUAL_RATE / 365;
+
+interface DayEntry {
+	date: string; // ISO date
+	deposited: number;
+	pnl: number;
+}
+
+const transactions: { id: number; date: string; amount: number }[] = [
+	{ id: 1, date: "2025-06-06", amount: 50000 },
+	{ id: 2, date: "2025-07-15", amount: 100000 },
+	{ id: 3, date: "2025-08-30", amount: 100000 },
+	{ id: 4, date: "2025-10-05", amount: 150000 },
+	{ id: 5, date: "2025-12-14", amount: -150000 },
+	{ id: 6, date: "2026-02-20", amount: 200000 },
+	{ id: 7, date: "2026-03-02", amount: 200000 },
+	{ id: 8, date: "2026-04-03", amount: 100000 },
 ];
 
-const movements = [
-	{
-		id: 5,
-		type: "withdrawal" as const,
-		date: "2026-04-06T10:30:00Z",
-		amount: 25000,
-	},
-	{
-		id: 4,
-		type: "deposit" as const,
-		date: "2026-03-28T15:20:00Z",
-		amount: 250000,
-	},
-	{
-		id: 3,
-		type: "deposit" as const,
-		date: "2026-03-15T09:45:00Z",
-		amount: 250000,
-	},
-	{
-		id: 2,
-		type: "withdrawal" as const,
-		date: "2026-03-01T00:00:00Z",
-		amount: 25000,
-	},
-	{
-		id: 1,
-		type: "deposit" as const,
-		date: "2026-02-20T11:00:00Z",
-		amount: 500000,
-	},
-];
+function generateFullData(): DayEntry[] {
+	const start = new Date("2025-06-01");
+	const end = new Date();
 
-type TimeRange = "1M" | "3M" | "6M" | "1A" | "MAX";
-const timeRanges: TimeRange[] = ["1M", "3M", "6M", "1A", "MAX"];
+	// Build a map of date -> amount for quick lookup
+	const txMap = new Map<string, number>();
+	for (const tx of transactions) {
+		txMap.set(tx.date, (txMap.get(tx.date) ?? 0) + tx.amount);
+	}
+
+	const data: DayEntry[] = [];
+	let deposited = 0;
+	let pnl = 0;
+
+	for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+		const iso = d.toISOString().slice(0, 10);
+
+		// Apply any transaction for this day
+		const txAmount = txMap.get(iso);
+		if (txAmount) {
+			deposited += txAmount;
+			if (deposited < 0) deposited = 0;
+		}
+
+		// Accrue daily interest on (deposited + pnl) if there's a balance
+		if (deposited + pnl > 0) {
+			pnl += (deposited + pnl) * DAILY_RATE;
+		}
+
+		data.push({
+			date: iso,
+			deposited: Math.round(deposited),
+			pnl: Math.round(pnl),
+		});
+	}
+
+	return data;
+}
+
+const fullData = generateFullData();
+
+type TimeRange = "1M" | "3M" | "6M" | "1A" | "MÁX";
+const timeRanges: TimeRange[] = ["1M", "3M", "6M", "1A", "MÁX"];
 
 function getSliceCount(range: TimeRange, total: number): number {
 	switch (range) {
 		case "1M":
-			return 1;
+			return 30;
 		case "3M":
-			return 3;
+			return 90;
 		case "6M":
-			return 6;
+			return 180;
 		case "1A":
-			return 12;
-		case "MAX":
+			return 365;
+		case "MÁX":
 			return total;
 	}
 }
@@ -101,16 +117,41 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function SavingsPage() {
-	const [selectedRange, setSelectedRange] = useState<TimeRange>("MAX");
+	const [selectedRange, setSelectedRange] = useState<TimeRange>("MÁX");
+	const [activeEntry, setActiveEntry] = useState<{
+		deposited: number;
+		pnl: number;
+	}>({
+		deposited: 0,
+		pnl: 0,
+	});
+	const [isPressing, setIsPressing] = useState(false);
 
 	const chartData = useMemo(() => {
 		const count = getSliceCount(selectedRange, fullData.length);
-		return fullData.slice(-count);
+		return fullData.slice(-count).map((d) => ({
+			...d,
+			value: d.deposited + d.pnl,
+		}));
 	}, [selectedRange]);
 
-	const currentValue = 950000;
-	const gainAmount = 25000;
-	const gainPercent = "2,53";
+	const handlePressStart = ({ activeIndex }: { activeIndex: number }) => {
+		const entry = chartData[activeIndex];
+		setIsPressing(true);
+		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
+	};
+
+	const handlePressEnd = () => {
+		const lastEntry = chartData[chartData.length - 1];
+		setIsPressing(false);
+		setActiveEntry({ deposited: lastEntry.deposited, pnl: lastEntry.pnl });
+	};
+
+	const handlePressMove = ({ activeIndex }: { activeIndex: number }) => {
+		if (!isPressing) return;
+		const entry = chartData[activeIndex];
+		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
+	};
 
 	return (
 		<>
@@ -131,7 +172,6 @@ export default function SavingsPage() {
 				</button>
 			</div>
 
-			{/* Scrollable Content */}
 			<div className="overflow-y-auto no-scrollbar flex flex-col">
 				{/* Balance Section */}
 				<div className="px-6 pt-6 pb-2 flex flex-col items-center text-center">
@@ -139,25 +179,29 @@ export default function SavingsPage() {
 						Total ahorrado
 					</p>
 					<h2 className="mt-1 text-4xl font-bold tracking-tight text-foreground">
-						${(currentValue + gainAmount).toLocaleString("es-CL")}
+						{formatCurrency(activeEntry.deposited + activeEntry.pnl)}
 					</h2>
 					<div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1">
 						<TrendingUp className="size-3.5 text-emerald-600" />
 						<span className="text-xs font-semibold text-emerald-600">
-							${gainAmount.toLocaleString("es-CL")} ({gainPercent}%)
+							{formatCurrency(activeEntry.pnl)} (4,6%)
 						</span>
 					</div>
 				</div>
 
-				{/* Chart */}
-				<div className="pt-2">
-					<ChartContainer
-						config={chartConfig}
-						className="h-48 w-full aspect-auto border-b border-px border-primary/10"
-					>
+				<div className="space-y-4 mb-7">
+					<ChartContainer config={chartConfig} className="h-48 w-full">
 						<AreaChart
+							accessibilityLayer
 							data={chartData}
-							margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+							margin={{ top: 2, right: 0, bottom: 4, left: 0 }}
+							onTouchStart={({ activeIndex }) =>
+								handlePressStart({ activeIndex: Number(activeIndex) })
+							}
+							onTouchMove={({ activeIndex }) =>
+								handlePressMove({ activeIndex: Number(activeIndex) })
+							}
+							onTouchEnd={handlePressEnd}
 						>
 							<defs>
 								<linearGradient
@@ -168,70 +212,102 @@ export default function SavingsPage() {
 									y2="1"
 								>
 									<stop
-										offset="0%"
+										offset="5%"
 										stopColor="var(--color-primary)"
-										stopOpacity={0.3}
+										stopOpacity={0.8}
 									/>
 									<stop
-										offset="100%"
+										offset="95%"
 										stopColor="var(--color-primary)"
-										stopOpacity={0.02}
+										stopOpacity={0.2}
 									/>
 								</linearGradient>
 							</defs>
 
-							<YAxis hide domain={["dataMin - 20000", "dataMax + 20000"]} />
-							<ChartTooltip
-								content={
-									<ChartTooltipContent
-										hideIndicator
-										formatter={(value) =>
-											`$${Number(value).toLocaleString("es-CL")}`
-										}
-									/>
-								}
-							/>
 							<Area
-								type="monotone"
 								dataKey="value"
+								type="monotone"
+								fill="url(#savingsGradient)"
+								fillOpacity={0.25}
 								stroke="var(--color-primary)"
 								strokeWidth={2.5}
-								fill="url(#savingsGradient)"
-								dot={false}
-								activeDot={{
-									r: 5,
-									fill: "var(--color-primary)",
-									stroke: "var(--color-background)",
-									strokeWidth: 2,
+								activeDot={
+									isPressing
+										? {
+												r: 5,
+												fill: "var(--color-primary)",
+												stroke: "var(--color-background)",
+												strokeWidth: 2,
+											}
+										: false
+								}
+							/>
+
+							<ChartTooltip
+								active={isPressing}
+								isAnimationActive={false}
+								cursor={{
+									strokeDasharray: "5",
+								}}
+								content={({ activeIndex }) => {
+									if (activeIndex == null) return null;
+
+									const entry = chartData[Number(activeIndex)];
+									return (
+										<div className="rounded-md border border-muted-foreground/50 bg-background px-3 py-1.5 shadow-sm">
+											<time className="text-xs font-medium text-foreground">
+												{formatDate(entry.date)}
+											</time>
+										</div>
+									);
 								}}
 							/>
 						</AreaChart>
 					</ChartContainer>
 
-					{/* Time Range Selector */}
-					<div className="flex items-center justify-center gap-2 my-4">
+					<div className="grid grid-cols-5 px-6 items-center justify-center gap-2">
 						{timeRanges.map((range) => (
-							<button
+							<Button
 								key={range}
-								type="button"
+								size="sm"
 								onClick={() => setSelectedRange(range)}
-								className={`w-14 px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
-									selectedRange === range
-										? "bg-primary text-background shadow-sm"
-										: "bg-muted text-muted-foreground hover:bg-accent active:bg-accent/80"
-								}`}
+								className={cn(
+									"px-3 py-1.5 text-xs font-semibold rounded-full transition-all bg-muted text-muted-foreground hover:bg-accent",
+									selectedRange === range && "bg-primary text-background",
+								)}
 							>
 								{range}
-							</button>
+							</Button>
 						))}
 					</div>
 				</div>
 
-				{/* Activity Section */}
-				<div className="px-6 my-4">
-					<h3 className="text-lg font-bold text-muted-foreground mb-2">
-						Actividad
-					</h3>
+				<div className="grid grid-cols-3 px-6 gap-3">
+					<Button
+						variant="outline"
+						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+					>
+						<DownloadIcon className="size-6 text-primary" />
+						Retirar
+					</Button>
+					<Button
+						variant="outline"
+						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+					>
+						<DownloadIcon className="size-6 text-primary rotate-180" />
+						Ahorrar
+					</Button>
+					<Button
+						variant="outline"
+						className="flex-col justify-start items-start text-foreground shadow-md shadow-primary/5 py-3 rounded-lg font-semibold h-full"
+					>
+						<CalendarIcon className="size-6 text-primary" />
+						Programar
+					</Button>
+				</div>
+
+				<div className="px-6 my-4 space-y-1">
+					<h3 className="text-lg font-bold text-muted-foreground">Actividad</h3>
 
 					<Drawer>
 						<DrawerTrigger asChild>
@@ -253,16 +329,16 @@ export default function SavingsPage() {
 								</DrawerHeader>
 
 								<div className="px-4 pb-0">
-									{movements.map((m) => (
+									{transactions.map((m) => (
 										<div key={m.id} className="flex items-center gap-3.5 py-3">
 											<div
 												className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-													m.type === "deposit"
+													m.amount > 0
 														? "bg-emerald-500/10"
 														: "bg-orange-500/10"
 												}`}
 											>
-												{m.type === "deposit" ? (
+												{m.amount > 0 ? (
 													<ArrowDownLeft className="size-4 text-emerald-600" />
 												) : (
 													<ArrowUpRight className="size-4 text-orange-500" />
@@ -270,7 +346,7 @@ export default function SavingsPage() {
 											</div>
 											<div className="flex-1 min-w-0">
 												<p className="text-sm font-semibold text-foreground">
-													{m.type === "deposit" ? "Depósito" : "Retiro"}
+													{m.amount > 0 ? "Depósito" : "Retiro"}
 												</p>
 												<p className="text-xs text-muted-foreground">
 													{new Date(m.date).toLocaleDateString("es-CL")}
@@ -278,12 +354,10 @@ export default function SavingsPage() {
 											</div>
 											<p
 												className={`text-sm font-bold tabular-nums ${
-													m.type === "deposit"
-														? "text-emerald-600"
-														: "text-foreground"
+													m.amount > 0 ? "text-emerald-600" : "text-foreground"
 												}`}
 											>
-												{m.type === "deposit" ? "+" : "-"}
+												{m.amount > 0 ? "+" : "-"}
 												{" $"}
 												{m.amount.toLocaleString("es-CL")}
 											</p>
@@ -294,20 +368,24 @@ export default function SavingsPage() {
 						</DrawerContent>
 					</Drawer>
 				</div>
-
-				{/* Action Buttons */}
-				<div className="px-6 my-2 flex gap-3">
-					<Button
-						variant="outline"
-						className="text-primary border-primary flex-1 py-3 rounded-xl font-bold h-full"
-					>
-						Retirar
-					</Button>
-					<Button className="flex-1 py-3 rounded-xl font-bold h-full">
-						Ahorrar
-					</Button>
-				</div>
 			</div>
 		</>
 	);
+}
+
+function formatCurrency(amount: number) {
+	return new Intl.NumberFormat("es-CL", {
+		style: "currency",
+		currency: "CLP",
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
+	}).format(amount);
+}
+
+function formatDate(date: string): string {
+	return new Date(date).toLocaleDateString("es-CL", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
 }

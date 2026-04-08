@@ -9,10 +9,10 @@ export const userData = {
 	},
 	products: {
 		savings: {
-			currentValue: 975000,
-			depositAmount: 950000,
-			gainAmount: 25000,
-			gainPercentage: 2.53,
+			currentValue: 550471,
+			depositAmount: 540000,
+			gainAmount: 10471,
+			gainPercentage: 1.94,
 		},
 	},
 	movements: [

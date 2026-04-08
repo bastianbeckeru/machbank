@@ -4,6 +4,7 @@ import {
 	ArrowDownLeft,
 	ArrowLeft,
 	ArrowUpRight,
+	BanknoteArrowUpIcon,
 	CalendarIcon,
 	ChevronRightIcon,
 	DownloadIcon,
@@ -31,7 +32,7 @@ import { cn } from "@/lib/utils";
 
 // --- Generate realistic daily data ---
 const ANNUAL_RATE = 0.046;
-const DAILY_RATE = ANNUAL_RATE / 365;
+const DAILY_RATE = (1 + ANNUAL_RATE) ** (1 / 365) - 1;
 
 interface DayEntry {
 	date: string; // ISO date
@@ -40,18 +41,25 @@ interface DayEntry {
 }
 
 const transactions: { id: number; date: string; amount: number }[] = [
-	{ id: 1, date: "2025-06-06", amount: 50000 },
-	{ id: 2, date: "2025-07-15", amount: 100000 },
-	{ id: 3, date: "2025-08-30", amount: 100000 },
-	{ id: 4, date: "2025-10-05", amount: 150000 },
-	{ id: 5, date: "2025-12-14", amount: -150000 },
-	{ id: 6, date: "2026-02-20", amount: 200000 },
-	{ id: 7, date: "2026-03-02", amount: 200000 },
-	{ id: 8, date: "2026-04-03", amount: 100000 },
+	{ id: 3, date: "2025-03-31", amount: 70000 }, // bono o mes tranquilo
+	{ id: 4, date: "2025-04-30", amount: 50000 }, // rutina
+	{ id: 5, date: "2025-05-15", amount: 20000 }, // abono chico mid-month
+	{ id: 6, date: "2025-05-31", amount: 40000 },
+	{ id: 7, date: "2025-06-30", amount: -150000 }, // retiro: vacaciones / emergencia
+	{ id: 8, date: "2025-07-31", amount: 60000 }, // recuperando
+	{ id: 9, date: "2025-08-29", amount: 80000 },
+	{ id: 10, date: "2025-09-30", amount: 50000 },
+	{ id: 11, date: "2025-10-31", amount: 90000 }, // aguinaldo fiestas patrias
+	{ id: 12, date: "2025-11-28", amount: 50000 },
+	{ id: 13, date: "2025-12-31", amount: -80000 }, // gastos navidad/año nuevo
+	{ id: 14, date: "2026-01-31", amount: 70000 },
+	{ id: 15, date: "2026-02-28", amount: 60000 },
+	{ id: 16, date: "2026-03-31", amount: 80000 },
+	{ id: 17, date: "2026-04-07", amount: 50000 }, // hoy
 ];
 
 function generateFullData(): DayEntry[] {
-	const start = new Date("2025-06-01");
+	const start = new Date("2025-01-01");
 	const end = new Date();
 
 	// Build a map of date -> amount for quick lookup
@@ -67,14 +75,12 @@ function generateFullData(): DayEntry[] {
 	for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
 		const iso = d.toISOString().slice(0, 10);
 
-		// Apply any transaction for this day
 		const txAmount = txMap.get(iso);
 		if (txAmount) {
 			deposited += txAmount;
 			if (deposited < 0) deposited = 0;
 		}
 
-		// Accrue daily interest on (deposited + pnl) if there's a balance
 		if (deposited + pnl > 0) {
 			pnl += (deposited + pnl) * DAILY_RATE;
 		}
@@ -90,6 +96,21 @@ function generateFullData(): DayEntry[] {
 }
 
 const fullData = generateFullData();
+
+function aggregateByWeek(
+	data: (DayEntry & { value: number })[],
+): (DayEntry & { value: number })[] {
+	if (data.length === 0) return data;
+	const weeks: (DayEntry & { value: number })[] = [];
+	for (let i = 0; i < data.length; i++) {
+		const d = new Date(data[i].date);
+		// Push last entry of each week (Sunday) or the very last entry
+		if (d.getDay() === 0 || i === data.length - 1) {
+			weeks.push(data[i]);
+		}
+	}
+	return weeks;
+}
 
 type TimeRange = "1M" | "3M" | "6M" | "1A" | "MÁX";
 const timeRanges: TimeRange[] = ["1M", "3M", "6M", "1A", "MÁX"];
@@ -121,41 +142,41 @@ export default function SavingsPage() {
 	const [activeEntry, setActiveEntry] = useState<{
 		deposited: number;
 		pnl: number;
-	}>({
-		deposited: 0,
-		pnl: 0,
-	});
+	}>(fullData[fullData.length - 1]);
 	const [isPressing, setIsPressing] = useState(false);
 
 	const chartData = useMemo(() => {
 		const count = getSliceCount(selectedRange, fullData.length);
-		return fullData.slice(-count).map((d) => ({
+		const sliced = fullData.slice(-count).map((d) => ({
 			...d,
 			value: d.deposited + d.pnl,
 		}));
+		return selectedRange === "MÁX" ? aggregateByWeek(sliced) : sliced;
 	}, [selectedRange]);
 
 	const handlePressStart = ({ activeIndex }: { activeIndex: number }) => {
-		const entry = chartData[activeIndex];
+		const entry = chartData[Number(activeIndex)];
+		if (!entry) return;
 		setIsPressing(true);
 		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
 	};
 
 	const handlePressEnd = () => {
 		const lastEntry = chartData[chartData.length - 1];
+		if (!lastEntry) return;
 		setIsPressing(false);
 		setActiveEntry({ deposited: lastEntry.deposited, pnl: lastEntry.pnl });
 	};
 
 	const handlePressMove = ({ activeIndex }: { activeIndex: number }) => {
 		if (!isPressing) return;
-		const entry = chartData[activeIndex];
+		const entry = chartData[Number(activeIndex)];
+		if (!entry) return;
 		setActiveEntry({ deposited: entry.deposited, pnl: entry.pnl });
 	};
 
 	return (
 		<>
-			{/* Header */}
 			<div className="flex items-center justify-between px-2 py-3 bg-primary text-background">
 				<Link
 					href="/investment"
@@ -173,8 +194,7 @@ export default function SavingsPage() {
 			</div>
 
 			<div className="overflow-y-auto no-scrollbar flex flex-col">
-				{/* Balance Section */}
-				<div className="px-6 pt-6 pb-2 flex flex-col items-center text-center">
+				<div className="px-6 pt-6 flex flex-col items-start text-left">
 					<p className="sr-only text-sm text-muted-foreground font-medium">
 						Total ahorrado
 					</p>
@@ -182,24 +202,78 @@ export default function SavingsPage() {
 						{formatCurrency(activeEntry.deposited + activeEntry.pnl)}
 					</h2>
 
-					<div className="mt-2 inline-flex gap-2 items-center">
+					<div
+						className={cn(
+							"mt-2 h-12 inline-flex gap-2 justify-start items-start",
+							isPressing && "flex-col gap-0",
+						)}
+					>
 						<div
 							className={cn(
-								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 px-3 py-1",
+								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 px-3 py-2",
 								activeEntry.pnl < 0 && "text-rose-600 bg-rose-500/10",
+								isPressing && "bg-transparent",
 							)}
 						>
 							<TrendingUp
 								className={cn(
-									"size-3.5",
+									"size-3.5 text-emerald-600",
+									activeEntry.pnl < 0 &&
+										"rotate-180 -scale-x-100 text-rose-600",
+								)}
+							/>
+							<span
+								className={cn(
+									"text-xs font-semibold",
+									isPressing && "text-foreground",
+								)}
+							>
+								{formatCurrency(activeEntry.pnl)}
+							</span>
+							<span
+								className={cn(
+									"text-xs font-semibold text-muted-foreground sr-only -ml-0.5",
+									isPressing && "not-sr-only",
+								)}
+							>
+								ganancia
+							</span>
+						</div>
+						<div
+							className={cn(
+								"hidden",
+								isPressing && "px-3 inline-flex items-center gap-1.5",
+							)}
+						>
+							<BanknoteArrowUpIcon
+								className={cn(
+									"size-3.5 text-primary",
 									activeEntry.pnl < 0 && "rotate-180 -scale-x-100",
 								)}
 							/>
-							<span className="text-xs font-semibold">
-								{formatCurrency(activeEntry.pnl)}
+							<span
+								className={cn(
+									"text-xs font-semibold",
+									isPressing && "text-foreground",
+								)}
+							>
+								{formatCurrency(activeEntry.deposited)}
+							</span>
+							<span
+								className={cn(
+									"text-xs font-semibold text-muted-foreground sr-only -ml-0.5",
+									isPressing && "not-sr-only",
+								)}
+							>
+								depositado
 							</span>
 						</div>
-						<div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1">
+						<div
+							className={cn(
+								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-2",
+								isPressing && "sr-only",
+							)}
+						>
 							<span className="text-xs font-semibold text-emerald-600">
 								4,6% anual
 							</span>
@@ -291,7 +365,7 @@ export default function SavingsPage() {
 								onClick={() => setSelectedRange(range)}
 								className={cn(
 									"px-3 py-1.5 text-xs font-semibold rounded-full transition-all bg-muted text-muted-foreground hover:bg-accent",
-									selectedRange === range && "bg-primary text-background",
+									selectedRange === range && "bg-primary/15 text-primary",
 								)}
 							>
 								{range}

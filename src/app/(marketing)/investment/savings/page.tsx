@@ -181,11 +181,29 @@ export default function SavingsPage() {
 					<h2 className="mt-1 text-4xl font-bold tracking-tight text-foreground">
 						{formatCurrency(activeEntry.deposited + activeEntry.pnl)}
 					</h2>
-					<div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1">
-						<TrendingUp className="size-3.5 text-emerald-600" />
-						<span className="text-xs font-semibold text-emerald-600">
-							{formatCurrency(activeEntry.pnl)} (4,6%)
-						</span>
+
+					<div className="mt-2 inline-flex gap-2 items-center">
+						<div
+							className={cn(
+								"inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 px-3 py-1",
+								activeEntry.pnl < 0 && "text-rose-600 bg-rose-500/10",
+							)}
+						>
+							<TrendingUp
+								className={cn(
+									"size-3.5",
+									activeEntry.pnl < 0 && "rotate-180 -scale-x-100",
+								)}
+							/>
+							<span className="text-xs font-semibold">
+								{formatCurrency(activeEntry.pnl)}
+							</span>
+						</div>
+						<div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1">
+							<span className="text-xs font-semibold text-emerald-600">
+								4,6% anual
+							</span>
+						</div>
 					</div>
 				</div>
 

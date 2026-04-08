@@ -31,7 +31,7 @@ export default function BottomNavbar({
 	return (
 		<div
 			className={cn(
-				"flex flex-row items-center justify-around rounded-t-3xl px-2 pt-0 pb-2 bg-background",
+				"flex flex-row items-center justify-around px-2 pt-1 pb-2 bg-background/80 backdrop-blur-sm",
 				hideLabels && "pb-4 pt-2.5",
 				className,
 			)}
@@ -43,7 +43,7 @@ export default function BottomNavbar({
 						key={item.label}
 						href={item.href}
 						className={cn(
-							"flex flex-col items-center gap-2 rounded-full transition-colors text-muted-foreground",
+							"flex flex-col items-center gap-1 rounded-full transition-colors text-muted-foreground",
 							isActive && "text-primary",
 						)}
 					>

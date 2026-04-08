@@ -7,9 +7,8 @@ import {
 	FileTextIcon,
 	HeadsetIcon,
 	HelpCircleIcon,
-	Lock,
 	LockIcon,
-	MessageCircleQuestionMarkIcon,
+	ScrollTextIcon,
 	UserCircle2Icon,
 	UsersRoundIcon,
 } from "lucide-react";
@@ -33,6 +32,7 @@ const menuSections = [
 			{ icon: LockIcon, label: "Seguridad" },
 			{ icon: UserCircle2Icon, label: "Datos personales" },
 			{ icon: FileTextIcon, label: "Cartolas" },
+			{ icon: ScrollTextIcon, label: "Contratos" },
 		],
 	},
 	{

@@ -1,6 +1,11 @@
 "use client";
 
-import { ArrowLeft, ChevronRight, HelpCircle } from "lucide-react";
+import {
+	ArrowLeft,
+	ArrowUpRight,
+	ChevronRight,
+	HelpCircle,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -14,7 +19,8 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/numbers";
-import { type Merchant, mockMonthlyData } from "../page";
+import { formatDate } from "@/utils/strings";
+import { type Merchant, mockMonthlyData, type Transaction } from "../page";
 
 const getMerchantLogo = (merchantId: string) => {
 	const logos: Record<string, string> = {
@@ -188,7 +194,6 @@ export default function CategoryDetailPage({
 		};
 	}, [selectedMerchant, monthIndex]);
 
-	// Open transaction drawer for merchant
 	const handleOpenMerchantDrawer = (merchant: Merchant) => {
 		setSelectedMerchant(merchant);
 		setIsDrawerOpen(true);
@@ -423,24 +428,9 @@ export default function CategoryDetailPage({
 							)}
 
 							{/* Individual Transaction list */}
-							<div className="flex flex-col gap-2.5 max-h-75 overflow-y-auto no-scrollbar pb-2">
+							<div className="flex flex-col max-h-75 overflow-y-auto no-scrollbar pb-2">
 								{selectedMerchant.transactions.map((tx) => (
-									<div
-										key={tx.id}
-										className="flex items-center justify-between p-3.5 rounded-2xl border border-border/40 bg-muted/20"
-									>
-										<div className="flex flex-col">
-											<span className="font-bold text-sm text-foreground">
-												Compra
-											</span>
-											<span className="text-xxs text-muted-foreground font-semibold mt-0.5 uppercase tracking-wider">
-												{tx.date}
-											</span>
-										</div>
-										<span className="font-extrabold text-sm text-foreground tabular-nums">
-											-{formatCurrency(tx.amount)}
-										</span>
-									</div>
+									<TransactionRow key={tx.id} tx={tx} />
 								))}
 							</div>
 						</div>
@@ -448,5 +438,36 @@ export default function CategoryDetailPage({
 				</DrawerContent>
 			</Drawer>
 		</>
+	);
+}
+
+function TransactionRow({ tx }: { tx: Transaction }) {
+	const isDeposit = tx.amount < 0;
+
+	return (
+		<div className="flex items-center gap-3.5 py-3">
+			<div
+				className={cn(
+					"flex size-9 shrink-0 items-center justify-center rounded-full",
+					isDeposit ? "bg-emerald-500/10" : "bg-orange-500/10",
+				)}
+			>
+				<ArrowUpRight className="size-4 text-orange-500" />
+			</div>
+			<div className="flex-1 min-w-0">
+				<p className="text-sm font-semibold text-foreground">Compra</p>
+				<p className="text-xs text-muted-foreground">
+					{formatDate(tx.date, "compact")}
+				</p>
+			</div>
+			<p
+				className={cn(
+					"text-sm font-bold tabular-nums",
+					isDeposit ? "text-emerald-600" : "text-foreground",
+				)}
+			>
+				{formatCurrency(tx.amount * -1, true)}
+			</p>
+		</div>
 	);
 }

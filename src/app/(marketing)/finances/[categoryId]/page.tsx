@@ -16,6 +16,16 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/numbers";
 import { type Merchant, mockMonthlyData } from "../page";
 
+const getMerchantLogo = (merchantId: string) => {
+	const logos: Record<string, string> = {
+		mcdonalds: "/logos/mcdonalds.webp",
+		starbucks: "/logos/starbucks.webp",
+		dunkin: "/logos/dunkin.webp",
+		lamia: "/logos/gusteaus.webp",
+	};
+	return logos[merchantId] || null;
+};
+
 interface PageProps {
 	params: Promise<{ categoryId: string }>;
 	searchParams: Promise<{ year?: string; month?: string }>;
@@ -312,15 +322,29 @@ export default function CategoryDetailPage({
 										className="w-full text-left p-2.5 rounded-2xl border border-border/50 bg-card hover:bg-muted/10 shadow-xs flex items-center justify-between transition-all cursor-pointer"
 									>
 										<div className="flex items-center gap-3.5">
-											<div
-												className="size-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all"
-												style={{
-													backgroundColor: `${activeCategoryDetail.color}15`,
-													color: activeCategoryDetail.color,
-												}}
-											>
-												{merchant.name.charAt(0)}
-											</div>
+											{(() => {
+												const logoUrl = getMerchantLogo(merchant.id);
+												if (logoUrl) {
+													return (
+														<img
+															src={logoUrl}
+															alt={merchant.name}
+															className="size-10 rounded-xl object-contain bg-white p-1 shrink-0 border border-border/10 transition-all"
+														/>
+													);
+												}
+												return (
+													<div
+														className="size-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all"
+														style={{
+															backgroundColor: `${activeCategoryDetail.color}15`,
+															color: activeCategoryDetail.color,
+														}}
+													>
+														{merchant.name.charAt(0)}
+													</div>
+												);
+											})()}
 											<div>
 												<p className="font-bold text-sm text-foreground">
 													{merchant.name}
@@ -351,15 +375,29 @@ export default function CategoryDetailPage({
 						<div className="p-5 flex flex-col">
 							<DrawerHeader className="p-0 text-left">
 								<div className="flex items-center gap-3.5 mb-1.5">
-									<div
-										className="size-10 rounded-xl flex items-center justify-center font-extrabold text-sm"
-										style={{
-											backgroundColor: `${activeCategoryDetail.color}15`,
-											color: activeCategoryDetail.color,
-										}}
-									>
-										{selectedMerchant.name.charAt(0)}
-									</div>
+									{(() => {
+										const logoUrl = getMerchantLogo(selectedMerchant.id);
+										if (logoUrl) {
+											return (
+												<img
+													src={logoUrl}
+													alt={selectedMerchant.name}
+													className="size-10 rounded-xl object-contain bg-white p-1 shrink-0 border border-border/10"
+												/>
+											);
+										}
+										return (
+											<div
+												className="size-10 rounded-xl flex items-center justify-center font-extrabold text-sm"
+												style={{
+													backgroundColor: `${activeCategoryDetail.color}15`,
+													color: activeCategoryDetail.color,
+												}}
+											>
+												{selectedMerchant.name.charAt(0)}
+											</div>
+										);
+									})()}
 									<DrawerTitle className="text-lg font-bold text-foreground">
 										{selectedMerchant.name}
 									</DrawerTitle>

@@ -15,7 +15,7 @@ import {
 	TrendingUp,
 	UtensilsCrossed,
 } from "lucide-react";
-import { AnimatePresence, motion, animate, useMotionValue } from "motion/react";
+import { AnimatePresence, animate, motion, useMotionValue } from "motion/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -102,7 +102,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "lamia",
-						name: "Restaurante La Mia",
+						name: "Restaurant Gusteau's",
 						amount: 60000,
 						transactions: [{ id: "t8", date: "15 Mar 2026", amount: 60000 }],
 					},
@@ -288,7 +288,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "lamia",
-						name: "Restaurante La Mia",
+						name: "Restaurant Gusteau's",
 						amount: 60000,
 						transactions: [{ id: "t30", date: "15 Abr 2026", amount: 60000 }],
 					},
@@ -495,7 +495,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "lamia",
-						name: "Restaurante La Mia",
+						name: "Restaurant Gusteau's",
 						amount: 60000,
 						transactions: [{ id: "t52", date: "15 May", amount: 60000 }],
 					},
@@ -895,9 +895,9 @@ function FinancesDashboard() {
 			{/* Main Scroll Area */}
 			<div className="overflow-y-auto no-scrollbar bg-background flex flex-col items-center">
 				{/* Donut Chart Ring */}
-				<div className="relative size-104 flex items-center justify-center flex-col pb-4 gap-2.5">
+				<div className="relative w-full h-72 flex items-center justify-center shrink-0">
 					{/* Interactive Recharts Ring using shadcn/ui container */}
-					<ChartContainer config={chartConfig} className="w-full h-full mt-4">
+					<ChartContainer config={chartConfig} className="w-full h-full">
 						<PieChart>
 							<Pie
 								data={chartData}
@@ -938,7 +938,7 @@ function FinancesDashboard() {
 					</ChartContainer>
 
 					{/* Center Value Display */}
-					<div className="absolute top-28 flex flex-col items-center justify-center pointer-events-none w-full max-w-36">
+					<div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4 w-full">
 						<span className="text-2xl font-extrabold tracking-tight text-foreground mt-0.5 tabular-nums">
 							<Odometer
 								value={activeCategory ? activeCategory.amount : totalExpenses}
@@ -957,23 +957,23 @@ function FinancesDashboard() {
 							</motion.span>
 						</AnimatePresence>
 					</div>
+				</div>
 
-					{/* Monthly Comparison */}
-					<div
-						className={cn(
-							"flex items-center gap-1.5 justify-center py-1.5 px-3 rounded-full text-xs font-bold transition-all",
-							comparisonText.isLower
-								? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
-								: "bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400",
-						)}
-					>
-						<span>{comparisonText.text}</span>
-						{comparisonText.isLower ? (
-							<TrendingDown className="size-3.5" />
-						) : (
-							<TrendingUp className="size-3.5" />
-						)}
-					</div>
+				{/* Monthly Comparison */}
+				<div
+					className={cn(
+						"flex items-center gap-1.5 justify-center py-1.5 px-3 rounded-full text-xs font-bold transition-all mb-4",
+						comparisonText.isLower
+							? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
+							: "bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400",
+					)}
+				>
+					<span>{comparisonText.text}</span>
+					{comparisonText.isLower ? (
+						<TrendingDown className="size-3.5" />
+					) : (
+						<TrendingUp className="size-3.5" />
+					)}
 				</div>
 
 				{/* Month Selector Component */}

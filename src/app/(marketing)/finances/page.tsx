@@ -906,6 +906,8 @@ function FinancesDashboard() {
 								innerRadius={70}
 								outerRadius={105}
 								strokeWidth={4}
+								animationBegin={0}
+								animationDuration={1000}
 								shape={({ index, outerRadius = 0, fill, ...props }: any) => {
 									const isSelected = index === activeIndex;
 									const hasSelection = activeIndex !== -1;

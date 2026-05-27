@@ -12,11 +12,21 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const bottomNavItems = [
-	{ label: "Inicio", icon: HomeIcon, href: "/home" },
-	{ label: "Transferencias", icon: ArrowRightLeftIcon, href: "/transfers" },
-	{ label: "Pago QR", icon: QrCodeIcon, href: "/home" }, // qr
-	{ label: "Tarjetas", icon: CreditCardIcon, href: "/home" }, // cards
-	{ label: "Inversiones", icon: PiggyBankIcon, href: "/investment" },
+	{ label: "Inicio", icon: HomeIcon, href: "/home", disabled: false },
+	{
+		label: "Transferencias",
+		icon: ArrowRightLeftIcon,
+		href: "/transfers",
+		disabled: false,
+	},
+	{ label: "Pago QR", icon: QrCodeIcon, href: "/qr", disabled: true },
+	{ label: "Tarjetas", icon: CreditCardIcon, href: "/cards", disabled: true },
+	{
+		label: "Inversiones",
+		icon: PiggyBankIcon,
+		href: "/investment",
+		disabled: false,
+	},
 ];
 
 export default function BottomNavbar({
@@ -37,14 +47,15 @@ export default function BottomNavbar({
 			)}
 		>
 			{bottomNavItems.map((item) => {
-				const isActive = pathname === item.href;
+				const isActive = pathname === item.href && !item.disabled;
 				return (
 					<Link
 						key={item.label}
-						href={item.href}
+						href={item.disabled ? "/" : item.href}
 						className={cn(
 							"flex flex-col items-center gap-1 rounded-full transition-colors text-muted-foreground",
 							isActive && "text-primary",
+							item.disabled && "pointer-events-none",
 						)}
 					>
 						<item.icon className="size-6" />

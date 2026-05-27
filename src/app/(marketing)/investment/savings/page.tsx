@@ -182,9 +182,9 @@ function TransactionRow({ tx }: { tx: Transaction }) {
 
 export default function SavingsPage() {
 	const [selectedRange, setSelectedRange] = useState<TimeRange>("MÁX");
-	const [activeEntry, setActiveEntry] = useState<Pick<DayEntry, "deposited" | "pnl">>(
-		fullData[fullData.length - 1],
-	);
+	const [activeEntry, setActiveEntry] = useState<
+		Pick<DayEntry, "deposited" | "pnl">
+	>(fullData[fullData.length - 1]);
 	const [isPressing, setIsPressing] = useState(false);
 
 	const chartData = useMemo(() => {
@@ -458,10 +458,10 @@ export default function SavingsPage() {
 								<ScrollArea className="h-96">
 									<div className="px-4 pb-0">
 										{[...transactions]
-										.sort((a, b) => b.date.localeCompare(a.date))
-										.map((tx) => (
-											<TransactionRow key={tx.id} tx={tx} />
-										))}
+											.sort((a, b) => b.date.localeCompare(a.date))
+											.map((tx) => (
+												<TransactionRow key={tx.id} tx={tx} />
+											))}
 									</div>
 								</ScrollArea>
 							</div>

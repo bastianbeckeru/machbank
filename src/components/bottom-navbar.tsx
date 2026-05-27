@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 const bottomNavItems = [
 	{ label: "Inicio", icon: HomeIcon, href: "/home" },
 	{ label: "Transferencias", icon: ArrowRightLeftIcon, href: "/transfers" },
-	{ label: "Pago QR", icon: QrCodeIcon, href: "/qr" },
-	{ label: "Tarjetas", icon: CreditCardIcon, href: "/cards" },
+	{ label: "Pago QR", icon: QrCodeIcon, href: "/home" }, // qr
+	{ label: "Tarjetas", icon: CreditCardIcon, href: "/home" }, // cards
 	{ label: "Inversiones", icon: PiggyBankIcon, href: "/investment" },
 ];
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { CreditCard, PiggyBankIcon } from "lucide-react";
+import { CreditCard, PiggyBankIcon, PieChart } from "lucide-react";
+import Link from "next/link";
 import BottomNavbar from "./bottom-navbar";
 import Header from "./header";
 import QuickActions from "./quick-actions";
@@ -65,6 +66,23 @@ export function BankingDashboard() {
 								<CreditCard className="size-9" />
 							</div>
 						</div>
+
+						<Link
+							href="/finances"
+							className="bg-card hover:bg-muted/10 border border-primary/10 rounded-xl h-16 flex flex-row items-center justify-between px-4 py-2 shadow-xs transition-colors"
+						>
+							<div className="flex flex-col gap-0.5">
+								<p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+									Mis Finanzas
+								</p>
+								<p className="font-extrabold text-base text-foreground">
+									Ver resumen de gastos
+								</p>
+							</div>
+							<div>
+								<PieChart className="size-8 text-primary" />
+							</div>
+						</Link>
 
 						<div className="hidden bg-primary rounded-lg h-16 flex-row items-center justify-between px-4 py-2">
 							<div className="flex flex-col gap-0.5">

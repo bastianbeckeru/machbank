@@ -57,7 +57,7 @@ export default function InvestmentPage() {
 						<div className="flex-1 flex flex-row justify-between min-w-0 ml-2">
 							<p className="font-semibold">Ahorro 24/7</p>
 							<p className="font-medium">
-								${formatCurrency(userData.products.savings.currentValue)}
+								{formatCurrency(userData.products.savings.currentValue)}
 							</p>
 						</div>
 						<ChevronRight className="size-5 text-muted-foreground" />

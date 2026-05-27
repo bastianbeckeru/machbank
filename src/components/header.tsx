@@ -8,10 +8,12 @@ import {
 	HeadsetIcon,
 	HelpCircleIcon,
 	LockIcon,
+	PieChart,
 	ScrollTextIcon,
 	UserCircle2Icon,
 	UsersRoundIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { userData } from "@/server/data";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -28,6 +30,7 @@ const menuSections = [
 	{
 		title: "Sobre mi cuenta",
 		items: [
+			{ icon: PieChart, label: "Mis Finanzas", href: "/finances" },
 			{ icon: DiamondIcon, label: "MACH Premium" },
 			{ icon: LockIcon, label: "Seguridad" },
 			{ icon: UserCircle2Icon, label: "Datos personales" },
@@ -116,14 +119,23 @@ export default function Header() {
 									{section.title}
 								</p>
 								<ul className="space-y-0.5">
-									{section.items.map((item) => (
-										<li key={item.label}>
+									{section.items.map((item) => {
+										const content = (
 											<div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-accent active:bg-accent/80 transition-colors cursor-pointer">
 												<item.icon className="size-4 text-primary" />
 												<span className="flex-1 text-left">{item.label}</span>
 											</div>
-										</li>
-									))}
+										);
+										return (
+											<li key={item.label}>
+												{"href" in item && item.href ? (
+													<Link href={item.href}>{content}</Link>
+												) : (
+													content
+												)}
+											</li>
+										);
+									})}
 								</ul>
 							</div>
 						))}

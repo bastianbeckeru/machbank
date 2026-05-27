@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, PiggyBankIcon, PieChart } from "lucide-react";
+import { CreditCard, PieChart, PiggyBankIcon } from "lucide-react";
 import Link from "next/link";
 import BottomNavbar from "./bottom-navbar";
 import Header from "./header";
@@ -56,8 +56,8 @@ export function BankingDashboard() {
 						</CarouselContent>
 					</Carousel>
 
-					<div className="px-6 flex flex-col gap-2 text-background">
-						<div className="bg-primary rounded-xl h-16 flex flex-row items-center justify-between px-4 py-2">
+					<div className="mt-2 px-6 flex flex-col gap-2 text-background">
+						<div className="bg-primary rounded-xl h-16 flex-row items-center justify-between px-4 py-2 hidden">
 							<div className="flex flex-col gap-0.5">
 								<p className="text-sm">Tarjeta de Crédito</p>
 								<p className="font-bold text-xl">Pídela aquí</p>
@@ -69,13 +69,13 @@ export function BankingDashboard() {
 
 						<Link
 							href="/finances"
-							className="bg-card hover:bg-muted/10 border border-primary/10 rounded-xl h-16 flex flex-row items-center justify-between px-4 py-2 shadow-xs transition-colors"
+							className="bg-card hover:bg-muted/10 border border-primary/10 rounded-xl h-16 flex flex-row items-center justify-between px-4 py-2 shadow-sm transition-colors"
 						>
 							<div className="flex flex-col gap-0.5">
 								<p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
 									Mis Finanzas
 								</p>
-								<p className="font-extrabold text-base text-foreground">
+								<p className="font-bold text-base text-foreground">
 									Ver resumen de gastos
 								</p>
 							</div>

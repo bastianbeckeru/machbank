@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/numbers";
 import { formatDate } from "@/utils/strings";
-import { type Merchant, mockMonthlyData, type Transaction } from "../page";
+import { type Merchant, mockMonthlyData } from "../page";
 
 const getMerchantLogo = (merchantId: string) => {
 	const logos: Record<string, string> = {
@@ -430,7 +430,22 @@ export default function CategoryDetailPage({
 							{/* Individual Transaction list */}
 							<div className="flex flex-col max-h-75 overflow-y-auto no-scrollbar pb-2">
 								{selectedMerchant.transactions.map((tx) => (
-									<TransactionRow key={tx.id} tx={tx} />
+									<div key={tx.id} className="flex items-center gap-3.5 py-3">
+										<div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
+											<ArrowUpRight className="size-4 text-orange-500" />
+										</div>
+										<div className="flex-1 min-w-0">
+											<p className="text-sm font-semibold text-foreground">
+												Compra
+											</p>
+											<p className="text-xs text-muted-foreground">
+												{formatDate(tx.date, "compact")}
+											</p>
+										</div>
+										<p className="text-sm font-bold tabular-nums text-foreground">
+											{formatCurrency(tx.amount * -1, true)}
+										</p>
+									</div>
 								))}
 							</div>
 						</div>
@@ -438,36 +453,5 @@ export default function CategoryDetailPage({
 				</DrawerContent>
 			</Drawer>
 		</>
-	);
-}
-
-function TransactionRow({ tx }: { tx: Transaction }) {
-	const isDeposit = tx.amount < 0;
-
-	return (
-		<div className="flex items-center gap-3.5 py-3">
-			<div
-				className={cn(
-					"flex size-9 shrink-0 items-center justify-center rounded-full",
-					isDeposit ? "bg-emerald-500/10" : "bg-orange-500/10",
-				)}
-			>
-				<ArrowUpRight className="size-4 text-orange-500" />
-			</div>
-			<div className="flex-1 min-w-0">
-				<p className="text-sm font-semibold text-foreground">Compra</p>
-				<p className="text-xs text-muted-foreground">
-					{formatDate(tx.date, "compact")}
-				</p>
-			</div>
-			<p
-				className={cn(
-					"text-sm font-bold tabular-nums",
-					isDeposit ? "text-emerald-600" : "text-foreground",
-				)}
-			>
-				{formatCurrency(tx.amount * -1, true)}
-			</p>
-		</div>
 	);
 }

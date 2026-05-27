@@ -229,7 +229,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "bip",
-						name: "Metro bip!",
+						name: "Bip!",
 						amount: 12000,
 						transactions: [
 							{ id: "t21", date: "20 Mar 2026", amount: 6000 },
@@ -412,7 +412,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "bip",
-						name: "Metro bip!",
+						name: "Bip!",
 						amount: 15000,
 						transactions: [
 							{ id: "t41", date: "20 Abr 2026", amount: 7500 },
@@ -436,8 +436,8 @@ export const mockMonthlyData: MonthlyData[] = [
 				],
 				merchants: [
 					{
-						id: "farmacia",
-						name: "Farmacia Cruz Verde",
+						id: "anthropic",
+						name: "Anthropic",
 						amount: 15000,
 						transactions: [{ id: "t43", date: "12 Abr 2026", amount: 15000 }],
 					},
@@ -595,7 +595,7 @@ export const mockMonthlyData: MonthlyData[] = [
 					},
 					{
 						id: "bip",
-						name: "Metro bip!",
+						name: "Bip!",
 						amount: 15000,
 						transactions: [
 							{ id: "t62", date: "20 May", amount: 7500 },
@@ -655,8 +655,8 @@ export const mockMonthlyData: MonthlyData[] = [
 				],
 				merchants: [
 					{
-						id: "farmacia",
-						name: "Farmacia Cruz Verde",
+						id: "anthropic",
+						name: "Anthropic",
 						amount: 20000,
 						transactions: [{ id: "t67", date: "12 May", amount: 20000 }],
 					},

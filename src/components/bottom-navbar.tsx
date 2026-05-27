@@ -31,7 +31,7 @@ export default function BottomNavbar({
 	return (
 		<div
 			className={cn(
-				"flex flex-row items-center justify-around px-2 pt-1 pb-2 bg-background/80 backdrop-blur-sm",
+				"flex flex-row border-t border-muted items-center justify-around px-2 pt-1 pb-2 bg-background/80 backdrop-blur-sm",
 				hideLabels && "pb-4 pt-2.5",
 				className,
 			)}

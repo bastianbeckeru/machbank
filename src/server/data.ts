@@ -3,7 +3,7 @@ export const userData = {
 		name: "Bastián",
 		fullName: "Bastián Becker",
 		handle: "@bastianbeckeru",
-		image: "https://github.com/bastianbeckeru.png",
+		image: "/profile/mclovin.webp",
 		email: "example@bci.cl",
 		birthday: "2001-09-09",
 	},

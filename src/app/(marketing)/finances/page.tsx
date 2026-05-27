@@ -1095,9 +1095,6 @@ function FinancesDashboard() {
 					</div>
 				</div>
 			</div>
-
-			{/* Bottom Navigation */}
-			<BottomNavbar />
 		</>
 	);
 }
